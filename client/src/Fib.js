@@ -3,77 +3,69 @@ import axios from 'axios';
 
 class Fib extends Component {
   state = {
-    seenValues: [],
-    values: [],
-    value: ''
+    seenIndexes: [],
+    values: {},
+    index: ''
   };
 
   componentDidMount() {
     this.fetchValues();
-    this.fetchSeenValues();
+    this.fetchIndexes();
   }
 
   async fetchValues() {
     const values = await axios.get('/api/values/current');
+    this.setState({ values: values.data });
+  }
+
+  async fetchIndexes() {
+    const seenIndexes = await axios.get('/api/values/all');
     this.setState({
-      values: values.data
+      seenIndexes: seenIndexes.data
     });
   }
 
-  async fetchSeenValues() {
-    const seenValues = await axios.get('api/values/all');
-    this.setState({
-      seenValues: seenValues.data
-    });
-  }
+  handleSubmit = async event => {
+    event.preventDefault();
 
-  handleSubmit = async e => {
-    e.preventDefault();
     await axios.post('/api/values', {
-      value: this.state.value
+      index: this.state.index
     });
-    this.setState({ value: '' });
+    this.setState({ index: '' });
   };
 
-  renderValues() {
-    if (!Object.keys(this.state.values).length) {
-      return <div>No values yet!</div>;
-    }
+  renderSeenIndexes() {
+    return this.state.seenIndexes.map(({ number }) => number).join(', ');
+  }
 
+  renderValues() {
     const entries = [];
+
     for (let key in this.state.values) {
       entries.push(
-        <li key={key}>
+        <div key={key}>
           For index {key} I calculated {this.state.values[key]}
-        </li>
+        </div>
       );
     }
 
-    return <ul>{entries}</ul>;
-  }
-
-  renderSeenValues() {
-    return this.state.seenValues
-      .map(({ number }) => {
-        return number;
-      })
-      .join(', ');
+    return entries;
   }
 
   render() {
     return (
       <div>
         <form onSubmit={this.handleSubmit}>
-          <label>Enter your value:</label>
+          <label>Enter your index:</label>
           <input
-            value={this.state.value}
-            onChange={ev => this.setState({ value: ev.target.value })}
+            value={this.state.index}
+            onChange={event => this.setState({ index: event.target.value })}
           />
           <button>Submit</button>
         </form>
 
-        <h3>Values I have seen:</h3>
-        {this.renderSeenValues()}
+        <h3>Indexes I have seen:</h3>
+        {this.renderSeenIndexes()}
 
         <h3>Calculated Values:</h3>
         {this.renderValues()}

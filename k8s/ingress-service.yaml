@@ -4,11 +4,11 @@ metadata:
   name: ingress-service
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-
 spec:
   ingressClassName: nginx
   rules:
-  - http:
+  - host: ad46eda57568444aaa3e074c92066de5-272672588.us-east-1.elb.amazonaws.com  # Replace with your actual domain or IP
+    http:
       paths:
       - path: /
         pathType: Prefix
@@ -24,3 +24,4 @@ spec:
             name: server-cluster-ip-service
             port:
               number: 5000
+
